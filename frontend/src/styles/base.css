@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;600;800&display=swap');
+
+:root {
+  /* Poster-inspired palette */
+  --violet: #652f6f;
+  --mint: #1c7160;
+  --coral: #b8503d;
+  --sun: #ccb651;
+  --sky: #a0bdd7;
+  --peach: #eeb4aa;
+
+  --bg: #fcfbfd;
+  --ink: #1b1a24;
+  --muted: #5e5e78;
+  --card: rgba(255, 255, 255, 0.78);
+  --border: rgba(20, 20, 35, 0.10);
+  --shadow: 0 16px 40px rgba(44, 31, 75, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* soft pastel wash (poster mood) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -18% -12% -18% -12%;
+  z-index: -2;
+  background:
+    radial-gradient(520px 420px at 14% 12%, rgba(160, 189, 215, 0.55), transparent 58%),
+    radial-gradient(540px 420px at 86% 18%, rgba(238, 180, 170, 0.60), transparent 60%),
+    radial-gradient(560px 440px at 22% 88%, rgba(204, 182, 81, 0.28), transparent 62%),
+    radial-gradient(620px 520px at 92% 84%, rgba(28, 113, 96, 0.22), transparent 64%);
+  filter: blur(18px);
+}
+
+/* subtle paper grain */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.015) 0px,
+      rgba(0, 0, 0, 0.015) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+a { color: inherit; }
+
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+
+::selection { background: rgba(124, 92, 255, 0.18); }

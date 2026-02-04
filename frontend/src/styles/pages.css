@@ -1,0 +1,137 @@
+.page { min-height: 100vh; }
+
+.grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 18px;
+  padding: 14px 22px 20px;
+}
+
+@media (max-width: 980px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.panel.camera {
+  position: relative;
+  overflow: hidden;
+}
+
+.video {
+  width: 100%;
+  height: 420px;
+  background: #fff;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 1px solid rgba(20, 20, 35, 0.08);
+}
+
+.hint {
+  position: absolute;
+  left: 24px;
+  bottom: 26px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(20, 20, 35, 0.10);
+  box-shadow: 0 14px 22px rgba(44, 31, 75, 0.12);
+}
+
+.snapshot {
+  width: 100%;
+  max-height: 560px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid rgba(20, 20, 35, 0.10);
+}
+
+/* Loading / Error */
+.page-loading .center,
+.page-error .center {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(101, 47, 111, 0.15);
+  border-top-color: rgba(28, 113, 96, 0.55);
+  border-radius: 999px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Results */
+.results { display: grid; gap: 12px; margin-top: 12px; }
+
+.celeb-card {
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(20, 20, 35, 0.10);
+}
+
+.celeb-card.rank-1 {
+  background: linear-gradient(135deg, rgba(204, 182, 81, 0.22), rgba(255,255,255,0.65));
+}
+.celeb-card.rank-2 {
+  background: linear-gradient(135deg, rgba(160, 189, 215, 0.32), rgba(255,255,255,0.65));
+}
+.celeb-card.rank-3 {
+  background: linear-gradient(135deg, rgba(238, 180, 170, 0.35), rgba(255,255,255,0.65));
+}
+
+.celeb-rank { font-weight: 900; }
+.celeb-name { margin-top: 6px; font-size: 18px; font-weight: 900; }
+.celeb-score { margin-top: 10px; display: grid; gap: 6px; }
+
+.bar {
+  width: 100%;
+  height: 12px;
+  background: rgba(20, 20, 35, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-fill { height: 100%; background: rgba(101, 47, 111, 0.55); }
+.rank-1 .bar-fill { background: rgba(204, 182, 81, 0.85); }
+.rank-2 .bar-fill { background: rgba(160, 189, 215, 0.85); }
+.rank-3 .bar-fill { background: rgba(238, 180, 170, 0.85); }
+
+.score { color: var(--muted); font-size: 13px; }
+
+.footer {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 22px 18px;
+}
+
+h1, h2 {
+  margin: 10px 0 8px;
+  letter-spacing: -0.2px;
+}
+
+h1 { font-size: 28px; }
+h2 { font-size: 22px; }
+
+@media (max-width: 520px) {
+  h1 { font-size: 24px; }
+}

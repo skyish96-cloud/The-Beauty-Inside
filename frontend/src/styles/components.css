@@ -1,0 +1,111 @@
+.header {
+  padding: 22px 22px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand {
+  font-weight: 900;
+ letter-spacing: 0.2px;
+  font-size: 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.brand .logo {
+  font-size: 22px;
+  line-height: 1;
+  background: linear-gradient(90deg, var(--coral), var(--sun), var(--mint), var(--violet));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand .tag {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Poster-like color tiles */
+.mosaic {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.tile {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  box-shadow: 0 10px 18px rgba(44, 31, 75, 0.12);
+  border: 1px solid rgba(20, 20, 35, 0.10);
+}
+.t-violet { background: rgba(101, 47, 111, 0.20); }
+.t-mint   { background: rgba(28, 113, 96, 0.18); }
+.t-coral  { background: rgba(184, 80, 61, 0.18); }
+.t-sun    { background: rgba(204, 182, 81, 0.22); }
+.t-sky    { background: rgba(160, 189, 215, 0.35); }
+.t-peach  { background: rgba(238, 180, 170, 0.40); }
+
+.btn {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.65);
+  color: var(--ink);
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 22px rgba(44, 31, 75, 0.14);
+}
+
+.btn:active { transform: translateY(0px); box-shadow: none; }
+
+.btn.primary {
+  border-color: rgba(101, 47, 111, 0.22);
+  background: linear-gradient(90deg, rgba(101,47,111,0.15), rgba(28,113,96,0.14), rgba(184,80,61,0.14));
+}
+
+.row { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+.privacy-badge {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.70);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.status {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--border);
+  min-height: 20px;
+  color: var(--muted);
+}
+
+.kicker {
+  display: inline-block;
+  font-family: "Gaegu", cursive;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--violet);
+  transform: rotate(-1deg);
+}
