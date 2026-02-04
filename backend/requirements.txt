@@ -1,10 +1,31 @@
-# Firebase 연동용
-firebase-admin
+# FastAPI & WebSocket
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+websockets>=12.0
+python-multipart>=0.0.6
 
-# 백엔드 서버용
-fastapi
-uvicorn
+# Pydantic
+pydantic>=2.5.3
+pydantic-settings>=2.1.0
 
-# 데이터 처리용 (C 역할의 필수템)
-numpy
-pandas
+# Image Processing
+opencv-python-headless>=4.9.0.80
+Pillow>=10.2.0
+numpy>=1.26.3
+
+# Face Analysis
+deepface>=0.0.79
+mediapipe>=0.10.9
+tf-keras>=2.15.0
+
+# Firebase
+firebase-admin>=6.4.0
+
+# Utilities
+python-dotenv>=1.0.0
+scipy>=1.12.0
+
+# Testing
+pytest>=7.4.4
+pytest-asyncio>=0.23.3
+httpx>=0.26.0
