@@ -1,0 +1,10 @@
+# Firebase 연동용
+firebase-admin
+
+# 백엔드 서버용
+fastapi
+uvicorn
+
+# 데이터 처리용 (C 역할의 필수템)
+numpy
+pandas
