@@ -2,6 +2,8 @@
 이미지 디코딩 모듈
 blob→이미지 디코딩 (형식/크기 제한)
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 import base64
 import io
 from typing import Optional, Tuple
@@ -16,6 +18,10 @@ from app.core.logger import get_logger
 
 logger = get_logger(__name__)
 
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
+
 # 지원 이미지 형식
 SUPPORTED_FORMATS = {"jpeg", "jpg", "png", "webp"}
 
@@ -25,6 +31,7 @@ MAX_DIMENSION = 4096  # 최대 해상도
 MIN_DIMENSION = 100   # 최소 해상도
 
 
+@trace("decode_base64_image")
 def decode_base64_image(data: str) -> np.ndarray:
     """
     Base64 인코딩된 이미지를 NumPy 배열로 디코딩
@@ -39,6 +46,7 @@ def decode_base64_image(data: str) -> np.ndarray:
         ImageQualityError: 디코딩 실패 또는 형식 오류
     """
     try:
+        logger.info("Decode input summary", data={"data": brief(data)})
         # Data URL 형식 처리
         if data.startswith("data:"):
             # data:image/jpeg;base64,/9j/4AAQ... 형식
@@ -57,7 +65,8 @@ def decode_base64_image(data: str) -> np.ndarray:
         
         # Base64 디코딩
         image_bytes = base64.b64decode(encoded)
-        
+        logger.info("Decoded bytes", data={"bytes_len": len(image_bytes)})
+
         # 크기 검사
         if len(image_bytes) > MAX_IMAGE_SIZE:
             raise ImageQualityError(
@@ -68,7 +77,8 @@ def decode_base64_image(data: str) -> np.ndarray:
         # NumPy 배열로 변환
         nparr = np.frombuffer(image_bytes, np.uint8)
         image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        
+        logger.info("OpenCV imdecode result", data={"is_none": image is None})
+
         if image is None:
             raise ImageQualityError(
                 ErrorCode.IMAGE_INVALID_FORMAT,
@@ -101,6 +111,7 @@ def decode_base64_image(data: str) -> np.ndarray:
         )
 
 
+@trace("resize_image")
 def resize_image(image: np.ndarray, max_dim: int) -> np.ndarray:
     """
     이미지 크기 조정 (비율 유지)

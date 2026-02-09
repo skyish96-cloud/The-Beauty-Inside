@@ -1,6 +1,15 @@
 """
 Firestore 저장용 DTO
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
+from app.core.logger import get_logger
+
+logger = get_logger(__name__)
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
+
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import List, Optional
@@ -14,6 +23,7 @@ class SessionDocument:
     client_info: Optional[dict] = None
     status: str = "active"  # active, completed, expired
     
+    @trace("SessionDocument.to_dict")
     def to_dict(self) -> dict:
         return {
             "session_id": self.session_id,
@@ -34,6 +44,7 @@ class AnalysisDocument:
     quality_flags: dict
     analysis_time_ms: int
     
+    @trace("AnalysisDocument.to_dict")
     def to_dict(self) -> dict:
         return {
             "analysis_id": self.analysis_id,
@@ -55,6 +66,7 @@ class MatchResult:
     rank: int
     expression: str
     
+    @trace("MatchResult.to_dict")
     def to_dict(self) -> dict:
         return {
             "celeb_id": self.celeb_id,
@@ -74,6 +86,7 @@ class ResultDocument:
     created_at: datetime
     matches: List[MatchResult]
     
+    @trace("ResultDocument.to_dict")
     def to_dict(self) -> dict:
         return {
             "result_id": self.result_id,
@@ -98,5 +111,6 @@ class AggregateStats:
         if self.top_matched_celebs is None:
             self.top_matched_celebs = {}
     
+    @trace("AggregateStats.to_dict")
     def to_dict(self) -> dict:
         return asdict(self)

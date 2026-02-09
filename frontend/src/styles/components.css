@@ -1,111 +1,374 @@
+/* ═══════════════════════════════════════════════════════════════
+   🎬 Beauty Inside - Components
+   컬러풀하고 따뜻한 감성의 UI 컴포넌트
+═══════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────
+   Header
+───────────────────────────────────────────────────────────── */
 .header {
-  padding: 22px 22px 10px;
+  padding: 24px 28px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  animation: fadeInUp 0.6s ease-out;
 }
 
 .brand {
-  font-weight: 900;
- letter-spacing: 0.2px;
-  font-size: 18px;
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .brand .logo {
-  font-size: 22px;
-  line-height: 1;
-  background: linear-gradient(90deg, var(--coral), var(--sun), var(--mint), var(--violet));
+  font-family: "Gaegu", cursive;
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: -0.5px;
+  background: var(--gradient-rainbow);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: shimmer 3s linear infinite;
 }
 
 .brand .tag {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--muted);
+  letter-spacing: 0.3px;
 }
 
-/* Poster-like color tiles */
+/* ─────────────────────────────────────────────────────────────
+   Mosaic Tiles - Beauty Inside 포스터 스타일
+───────────────────────────────────────────────────────────── */
 .mosaic {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
 }
 
 .tile {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
-  box-shadow: 0 10px 18px rgba(44, 31, 75, 0.12);
-  border: 1px solid rgba(20, 20, 35, 0.10);
-}
-.t-violet { background: rgba(101, 47, 111, 0.20); }
-.t-mint   { background: rgba(28, 113, 96, 0.18); }
-.t-coral  { background: rgba(184, 80, 61, 0.18); }
-.t-sun    { background: rgba(204, 182, 81, 0.22); }
-.t-sky    { background: rgba(160, 189, 215, 0.35); }
-.t-peach  { background: rgba(238, 180, 170, 0.40); }
-
-.btn {
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.65);
-  color: var(--ink);
-  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
-  font-weight: 800;
-  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, transparent 60%);
+  border-radius: inherit;
+}
+
+.tile:hover {
+  transform: scale(1.15) rotate(-5deg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.t-violet {
+  background: var(--violet);
+}
+
+.t-mint {
+  background: var(--mint);
+}
+
+.t-coral {
+  background: var(--coral);
+}
+
+.t-sun {
+  background: var(--sun);
+}
+
+.t-sky {
+  background: var(--sky);
+}
+
+.t-peach {
+  background: var(--peach);
+}
+
+/* 타일 애니메이션 - 순차적 등장 */
+.tile:nth-child(1) {
+  animation: tileIn 0.5s 0.1s ease-out both;
+}
+
+.tile:nth-child(2) {
+  animation: tileIn 0.5s 0.15s ease-out both;
+}
+
+.tile:nth-child(3) {
+  animation: tileIn 0.5s 0.2s ease-out both;
+}
+
+.tile:nth-child(4) {
+  animation: tileIn 0.5s 0.25s ease-out both;
+}
+
+.tile:nth-child(5) {
+  animation: tileIn 0.5s 0.3s ease-out both;
+}
+
+.tile:nth-child(6) {
+  animation: tileIn 0.5s 0.35s ease-out both;
+}
+
+@keyframes tileIn {
+  from {
+    opacity: 0;
+    transform: scale(0) rotate(180deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Buttons - 트렌디한 그라디언트 버튼
+───────────────────────────────────────────────────────────── */
+.btn {
+  padding: 14px 24px;
+  border: none;
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 16px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 22px rgba(44, 31, 75, 0.14);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--shadow-elevated);
 }
 
-.btn:active { transform: translateY(0px); box-shadow: none; }
+.btn:hover::before {
+  opacity: 1;
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--shadow-soft);
+}
 
 .btn.primary {
-  border-color: rgba(101, 47, 111, 0.22);
-  background: linear-gradient(90deg, rgba(101,47,111,0.15), rgba(28,113,96,0.14), rgba(184,80,61,0.14));
+  background: linear-gradient(135deg, var(--coral) 0%, var(--peach) 50%, var(--sun) 100%);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.row { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+.btn.primary:hover {
+  background: linear-gradient(135deg, var(--coral) 0%, var(--sun) 50%, var(--mint) 100%);
+}
 
-.privacy-badge {
-  margin-top: 12px;
+.btn.secondary {
+  background: linear-gradient(135deg, var(--mint-soft), var(--sky-soft));
+  color: var(--ink);
+}
+
+/* 버튼 아이콘 스타일 */
+.btn-icon {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+}
+
+.btn-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.row {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Privacy Badge
+───────────────────────────────────────────────────────────── */
+.privacy-badge {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.70);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(10px);
   border: 1px solid var(--border);
   font-size: 13px;
+  font-weight: 500;
   color: var(--muted);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+.privacy-badge::before {
+  content: "🔒";
+  font-size: 14px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Status Box
+───────────────────────────────────────────────────────────── */
 .status {
-  margin-top: 12px;
-  padding: 10px 12px;
+  margin-top: 14px;
+  padding: 12px 16px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.65);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  min-height: 20px;
+  min-height: 24px;
   color: var(--muted);
+  font-size: 14px;
+  transition: all 0.3s ease;
 }
 
+.status:not(:empty) {
+  border-color: var(--mint);
+  background: linear-gradient(135deg, var(--mint-soft), rgba(255, 255, 255, 0.8));
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Kicker - 캘리그라피 스타일
+───────────────────────────────────────────────────────────── */
 .kicker {
   display: inline-block;
   font-family: "Gaegu", cursive;
   font-weight: 700;
-  font-size: 18px;
-  color: var(--violet);
-  transform: rotate(-1deg);
+  font-size: 22px;
+  color: var(--coral);
+  transform: rotate(-2deg);
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.kicker::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--sun-soft);
+  border-radius: 4px;
+  z-index: -1;
+  transform: rotate(1deg);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Expression Tag - 표정 태그
+───────────────────────────────────────────────────────────── */
+.expression-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  animation: tagPop 0.5s ease-out;
+  transition: transform 0.3s ease;
+}
+
+.expression-tag:hover {
+  transform: scale(1.05);
+}
+
+@keyframes tagPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.expression-tag.smile {
+  background: linear-gradient(135deg, var(--sun-soft), var(--sun));
+  color: #E65100;
+  box-shadow: 0 4px 12px rgba(255, 213, 79, 0.4);
+}
+
+.expression-tag.smile::before {
+  content: "😄";
+}
+
+.expression-tag.sad {
+  background: linear-gradient(135deg, var(--sky-soft), var(--sky));
+  color: #01579B;
+  box-shadow: 0 4px 12px rgba(129, 212, 250, 0.4);
+}
+
+.expression-tag.sad::before {
+  content: "🥺";
+}
+
+.expression-tag.surprise {
+  background: linear-gradient(135deg, var(--violet-soft), var(--violet));
+  color: #4A148C;
+  box-shadow: 0 4px 12px rgba(206, 147, 216, 0.4);
+}
+
+.expression-tag.surprise::before {
+  content: "😲";
+}
+
+.expression-tag.neutral {
+  background: linear-gradient(135deg, var(--mint-soft), var(--mint));
+  color: #004D40;
+  box-shadow: 0 4px 12px rgba(91, 196, 168, 0.4);
+}
+
+.expression-tag.neutral::before {
+  content: "😌";
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Glass Card Effect
+───────────────────────────────────────────────────────────── */
+.glass {
+  background: var(--card-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }

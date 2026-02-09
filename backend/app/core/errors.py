@@ -2,6 +2,8 @@
 표준 에러/예외 매핑 모듈
 에러코드 문서와 1:1 대응
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from enum import Enum
 from typing import Optional
 
@@ -113,6 +115,7 @@ class WebSocketError(BeautyInsideError):
     pass
 
 
+@trace("create_error_response")
 def create_error_response(error: BeautyInsideError) -> dict:
     """에러 응답 생성"""
     return {

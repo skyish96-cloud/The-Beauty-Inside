@@ -1,18 +1,42 @@
-# Firebase Service Account Key
+# --- Security & Secrets ---
 serviceAccountKey.json
+.env
+.env.local
 
-# Python cache
+# --- Python & Backend ---
 __pycache__/
-*.pyc
-*.pyo
-
-# Virtual environment
+*.py[cod]
+*$py.class
 .venv/
 venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
 
-# IDE
+# --- Node.js & Frontend ---
+node_modules/
+frontend/dist/
+.npm/
+
+# --- IDE & OS ---
 .idea/
 .vscode/
+.DS_Store
+Thumbs.db
 
-# Environment variables
-.env
+# --- Logs & Temp ---
+*.log
+logs/
+_archive/
+*_tree_*.txt
+_hit_*.txt
+
+# --- Data & Media ---
+data/
+backend/data/
+*.jpg
+*.png
+*.jpeg

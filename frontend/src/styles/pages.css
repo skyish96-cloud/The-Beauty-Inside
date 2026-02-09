@@ -1,137 +1,935 @@
-.page { min-height: 100vh; }
+/* ═══════════════════════════════════════════════════════════════
+   🎬 Beauty Inside - Page Styles
+   세련되고 트렌디한 페이지 레이아웃
+═══════════════════════════════════════════════════════════════ */
 
+.page {
+  min-height: 100vh;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Grid Layout
+───────────────────────────────────────────────────────────── */
 .grid {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 18px;
-  padding: 14px 22px 20px;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+  padding: 16px 28px 28px;
 }
 
-@media (max-width: 980px) {
-  .grid { grid-template-columns: 1fr; }
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Panel - Glass Morphism 카드
+───────────────────────────────────────────────────────────── */
 .panel {
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.panel:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.panel:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
 .panel.camera {
   position: relative;
   overflow: hidden;
+  padding: 16px;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Video & Camera
+───────────────────────────────────────────────────────────── */
 .video {
   width: 100%;
-  height: 420px;
-  background: #fff;
-  border-radius: 16px;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, var(--mint-soft), var(--sky-soft));
+  border-radius: 20px;
   object-fit: cover;
-  border: 1px solid rgba(20, 20, 35, 0.08);
+  object-position: center;
+  border: none;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .hint {
   position: absolute;
-  left: 24px;
-  bottom: 26px;
-  padding: 10px 12px;
+  left: 28px;
+  bottom: 28px;
+  padding: 12px 20px;
   border-radius: 999px;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(20, 20, 35, 0.10);
-  box-shadow: 0 14px 22px rgba(44, 31, 75, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  animation: pulse 2s ease-in-out infinite;
 }
 
+.hint::before {
+  content: "📸 ";
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Snapshot Image - 사용자 캡처 이미지
+───────────────────────────────────────────────────────────── */
 .snapshot {
   width: 100%;
-  max-height: 560px;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: 16px;
-  border: 1px solid rgba(20, 20, 35, 0.10);
+  object-position: center top;
+  border-radius: 20px;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Loading / Error */
+.snapshot:hover {
+  transform: scale(1.02);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Loading Page
+───────────────────────────────────────────────────────────── */
 .page-loading .center,
 .page-error .center {
   min-height: 100vh;
   display: grid;
   place-items: center;
   text-align: center;
-  padding: 24px;
+  padding: 32px;
 }
 
 .spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(101, 47, 111, 0.15);
-  border-top-color: rgba(28, 113, 96, 0.55);
-  border-radius: 999px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 12px;
+  width: 56px;
+  height: 56px;
+  border: 4px solid transparent;
+  border-radius: 50%;
+  background:
+    linear-gradient(var(--bg), var(--bg)) padding-box,
+    var(--gradient-rainbow) border-box;
+  background-size: 200% 200%;
+  animation: spin 1s linear infinite, shimmer 2s linear infinite;
+  margin: 0 auto 20px;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
-/* Results */
-.results { display: grid; gap: 12px; margin-top: 12px; }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
+.loading-step {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Results Section
+───────────────────────────────────────────────────────────── */
+.results {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Celeb Card - Beauty Inside 스타일 카드
+───────────────────────────────────────────────────────────── */
 .celeb-card {
-  border-radius: 16px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(20, 20, 35, 0.10);
+  border-radius: 20px;
+  padding: 20px;
+  background: var(--card);
+  border: none;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
+.celeb-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-rainbow);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+.celeb-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+}
+
+/* 순위별 카드 스타일 */
 .celeb-card.rank-1 {
-  background: linear-gradient(135deg, rgba(204, 182, 81, 0.22), rgba(255,255,255,0.65));
+  background: linear-gradient(135deg,
+      rgba(255, 213, 79, 0.25) 0%,
+      rgba(255, 171, 145, 0.15) 50%,
+      rgba(255, 255, 255, 0.9) 100%);
 }
+
+.celeb-card.rank-1::before {
+  background: linear-gradient(90deg, var(--sun), var(--coral), var(--sun));
+  height: 5px;
+}
+
 .celeb-card.rank-2 {
-  background: linear-gradient(135deg, rgba(160, 189, 215, 0.32), rgba(255,255,255,0.65));
+  background: linear-gradient(135deg,
+      rgba(129, 212, 250, 0.25) 0%,
+      rgba(206, 147, 216, 0.15) 50%,
+      rgba(255, 255, 255, 0.9) 100%);
 }
+
+.celeb-card.rank-2::before {
+  background: linear-gradient(90deg, var(--sky), var(--violet), var(--sky));
+}
+
 .celeb-card.rank-3 {
-  background: linear-gradient(135deg, rgba(238, 180, 170, 0.35), rgba(255,255,255,0.65));
+  background: linear-gradient(135deg,
+      rgba(168, 230, 207, 0.25) 0%,
+      rgba(255, 171, 145, 0.15) 50%,
+      rgba(255, 255, 255, 0.9) 100%);
 }
 
-.celeb-rank { font-weight: 900; }
-.celeb-name { margin-top: 6px; font-size: 18px; font-weight: 900; }
-.celeb-score { margin-top: 10px; display: grid; gap: 6px; }
+.celeb-card.rank-3::before {
+  background: linear-gradient(90deg, var(--mint), var(--peach), var(--mint));
+}
 
+/* 카드 애니메이션 */
+.celeb-card:nth-child(1) {
+  animation: cardSlideIn 0.5s 0.1s ease-out both;
+}
+
+.celeb-card:nth-child(2) {
+  animation: cardSlideIn 0.5s 0.2s ease-out both;
+}
+
+.celeb-card:nth-child(3) {
+  animation: cardSlideIn 0.5s 0.3s ease-out both;
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.celeb-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.celeb-image {
+  width: 100px;
+  height: 100px;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  object-fit: cover;
+  object-position: center top;
+  background: linear-gradient(135deg, var(--mint-soft), var(--sky-soft));
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.celeb-card:hover .celeb-image {
+  transform: scale(1.05) rotate(-2deg);
+}
+
+.celeb-info {
+  flex: 1;
+}
+
+.celeb-rank {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.celeb-rank [data-medal] {
+  font-size: 20px;
+}
+
+.celeb-name {
+  margin-top: 6px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+}
+
+.celeb-score {
+  margin-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Progress Bar
+───────────────────────────────────────────────────────────── */
 .bar {
   width: 100%;
-  height: 12px;
-  background: rgba(20, 20, 35, 0.08);
+  height: 14px;
+  background: rgba(0, 0, 0, 0.06);
   border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%);
+  animation: barShine 2s ease-in-out infinite;
+}
+
+@keyframes barShine {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.rank-1 .bar-fill {
+  background: linear-gradient(90deg, var(--sun), var(--coral));
+}
+
+.rank-2 .bar-fill {
+  background: linear-gradient(90deg, var(--sky), var(--violet));
+}
+
+.rank-3 .bar-fill {
+  background: linear-gradient(90deg, var(--mint), var(--peach));
+}
+
+.score {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.score [data-score] {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Footer
+───────────────────────────────────────────────────────────── */
+.footer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px 24px;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Typography
+───────────────────────────────────────────────────────────── */
+h1,
+h2 {
+  margin: 12px 0 10px;
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 900;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 800;
+  position: relative;
+  display: inline-block;
+}
+
+h2::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 60%;
+  height: 6px;
+  background: var(--gradient-warm);
+  border-radius: 3px;
+  z-index: -1;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Responsive
+───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .header {
+    padding: 20px 20px 12px;
+  }
+
+  .grid {
+    padding: 12px 20px 24px;
+  }
+
+  .panel {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .video {
+    aspect-ratio: 4 / 3;
+    border-radius: 16px;
+  }
+
+  .snapshot {
+    aspect-ratio: 1 / 1;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .celeb-card {
+    padding: 16px;
+  }
+
+  .celeb-image {
+    width: 80px;
+    height: 80px;
+    aspect-ratio: 1 / 1;
+  }
+
+  .celeb-name {
+    font-size: 18px;
+  }
+
+  .brand .logo {
+    font-size: 26px;
+  }
+
+  .tile {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mosaic {
+    display: none;
+  }
+
+  .hint {
+    left: 16px;
+    bottom: 16px;
+    padding: 10px 16px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   🎉 Result Page - 재미있는 결과 페이지 스타일
+═══════════════════════════════════════════════════════════════ */
+
+/* 컨페티 컨테이너 */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
   overflow: hidden;
 }
 
-.bar-fill { height: 100%; background: rgba(101, 47, 111, 0.55); }
-.rank-1 .bar-fill { background: rgba(204, 182, 81, 0.85); }
-.rank-2 .bar-fill { background: rgba(160, 189, 215, 0.85); }
-.rank-3 .bar-fill { background: rgba(238, 180, 170, 0.85); }
+.confetti {
+  position: absolute;
+  top: -10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confettiFall 3s ease-in-out forwards;
+}
 
-.score { color: var(--muted); font-size: 13px; }
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
 
-.footer {
-  max-width: 1120px;
+  100% {
+    transform: translateY(100vh) rotate(720deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* 결과 그리드 */
+.result-grid {
+  align-items: start;
+}
+
+/* 사진 패널 */
+.photo-panel {
+  position: sticky;
+  top: 20px;
+}
+
+.photo-frame {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.photo-label {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.photo-icon {
+  font-size: 18px;
+}
+
+/* 재미있는 코멘트 */
+.fun-comment {
+  text-align: center;
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, var(--sun-soft), var(--peach-soft));
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  animation: bounceIn 0.6s ease-out 0.5s both;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 결과 패널 */
+.results-panel {
+  position: relative;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.result-header h2 {
+  margin: 0;
+}
+
+/* 매치 배지 */
+.match-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, var(--mint-soft), var(--sky-soft));
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.match-badge.excellent {
+  background: linear-gradient(135deg, var(--sun), var(--coral));
+  color: white;
+}
+
+.match-badge.good {
+  background: linear-gradient(135deg, var(--mint), var(--sky));
+  color: white;
+}
+
+.match-icon {
+  font-size: 18px;
+  animation: spin 3s linear infinite;
+}
+
+/* 셀럽 카드 개선 */
+.celeb-image-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.rank-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 900;
+  font-size: 14px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.rank-badge.rank-1 {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+}
+
+.rank-badge.rank-2 {
+  background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+}
+
+.rank-badge.rank-3 {
+  background: linear-gradient(135deg, #CD7F32, #B8860B);
+}
+
+/* 매치 메시지 */
+.celeb-match-msg {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.rank-1 .celeb-match-msg {
+  background: linear-gradient(135deg, rgba(255, 213, 79, 0.3), rgba(255, 171, 145, 0.3));
+  color: #E65100;
+}
+
+.rank-2 .celeb-match-msg {
+  background: linear-gradient(135deg, rgba(129, 212, 250, 0.3), rgba(206, 147, 216, 0.3));
+  color: #1565C0;
+}
+
+.rank-3 .celeb-match-msg {
+  background: linear-gradient(135deg, rgba(168, 230, 207, 0.3), rgba(255, 171, 145, 0.3));
+  color: #00695C;
+}
+
+/* 점수 스타일 개선 */
+.score {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.score-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.score-value {
+  font-size: 24px;
+  font-weight: 900;
+  background: var(--gradient-rainbow);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+.score-unit {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* 액션 버튼 */
+.action-row {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-share {
+  flex: 1;
+  min-width: 140px;
+}
+
+/* 하단 팁 */
+.result-footer {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 22px 18px;
+  padding: 16px 28px 28px;
+  text-align: center;
 }
 
-h1, h2 {
-  margin: 10px 0 8px;
-  letter-spacing: -0.2px;
+.footer-tip {
+  display: inline-block;
+  padding: 12px 24px;
+  background: var(--card-glass);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  font-size: 14px;
+  color: var(--muted);
+  border: 1px solid var(--border);
 }
 
-h1 { font-size: 28px; }
-h2 { font-size: 22px; }
+/* 결과 페이지 반응형 */
+@media (max-width: 640px) {
+  .photo-panel {
+    position: relative;
+    top: 0;
+  }
 
-@media (max-width: 520px) {
-  h1 { font-size: 24px; }
+  .result-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .match-badge {
+    align-self: flex-start;
+  }
+
+  .celeb-image-wrap .rank-badge {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .score-value {
+    font-size: 20px;
+  }
+
+  .fun-comment {
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   🎯 NEW: 1:1 비교 레이아웃 (사용자 vs 1등 셀럽)
+═══════════════════════════════════════════════════════════════ */
+
+/* 상단 1등 비교 섹션 */
+.top-match-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 28px;
+}
+
+.top-match-section .result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.top-match-section .result-header h2 {
+  margin: 0;
+}
+
+/* 1:1 그리드: 사용자 사진 vs 1등 */
+.top-match-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+@media (max-width: 768px) {
+  .top-match-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* 1등 패널 스타일 */
+.first-place-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 1등 카드 (큰 이미지) */
+.first-place-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.first-celeb-image-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.first-celeb-image {
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  object-fit: cover;
+  object-position: center top;
+  background: linear-gradient(135deg, var(--sun-soft), var(--peach-soft));
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.first-celeb-image-wrap .rank-badge {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+}
+
+.first-celeb-info {
+  width: 100%;
+}
+
+.first-celeb-info .celeb-rank {
+  justify-content: center;
+}
+
+.first-celeb-info .celeb-name {
+  font-size: 26px;
+  text-align: center;
+}
+
+.first-celeb-info .celeb-match-msg {
+  margin: 8px auto;
+}
+
+.first-celeb-info .celeb-score {
+  margin-top: 16px;
+}
+
+/* 2, 3등 섹션 */
+.runners-up-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px 16px;
+}
+
+.runners-up-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .runners-up-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 하단 버튼 섹션 */
+.action-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px 16px;
+  text-align: center;
+}
+
+.action-section .action-row {
+  justify-content: center;
+}
+
+.action-section .privacy-badge {
+  margin-top: 12px;
+  display: inline-block;
+  padding: 8px 16px;
+  background: var(--card-glass);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--muted);
 }

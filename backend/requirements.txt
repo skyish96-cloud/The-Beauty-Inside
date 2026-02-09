@@ -18,7 +18,7 @@ deepface>=0.0.79
 mediapipe>=0.10.9
 tf-keras>=2.15.0
 
-# Firebase
+# Firebase (선택적 - 스크립트용, 런타임 불필요)
 firebase-admin>=6.4.0
 
 # Utilities

@@ -2,6 +2,8 @@
 얼굴 크롭/정렬 모듈
 최소 ROI 추출
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from typing import Optional, Tuple
 
 import cv2
@@ -13,6 +15,11 @@ from app.core.logger import get_logger
 logger = get_logger(__name__)
 
 
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
+
+@trace("crop_face")
 def crop_face(
     image: np.ndarray,
     bbox: Tuple[int, int, int, int],
@@ -54,6 +61,7 @@ def crop_face(
     return cropped
 
 
+@trace("align_face")
 def align_face(
     image: np.ndarray,
     left_eye: Tuple[float, float],
@@ -100,6 +108,7 @@ def align_face(
     return aligned
 
 
+@trace("extract_face_from_landmarks")
 def extract_face_from_landmarks(
     image: np.ndarray,
     landmarks: list,
@@ -135,6 +144,7 @@ def extract_face_from_landmarks(
     return crop_face(image, bbox, margin=0.2, target_size=target_size)
 
 
+@trace("get_eye_landmarks")
 def get_eye_landmarks(landmarks: list) -> Optional[Tuple[Tuple[float, float], Tuple[float, float]]]:
     """
     랜드마크에서 눈 좌표 추출
@@ -165,6 +175,7 @@ def get_eye_landmarks(landmarks: list) -> Optional[Tuple[Tuple[float, float], Tu
     return ((left_x, left_y), (right_x, right_y))
 
 
+@trace("normalize_face")
 def normalize_face(
     image: np.ndarray,
     mean: Tuple[float, float, float] = (0.485, 0.456, 0.406),
@@ -204,6 +215,7 @@ class FaceCropper:
         self.target_size = target_size
         self.align = align
     
+    @trace("FaceCropper.crop")
     def crop(
         self,
         image: np.ndarray,

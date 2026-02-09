@@ -1,6 +1,8 @@
 """
 Blendshape → 표정 라벨 매핑/스코어링 모듈
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
@@ -10,6 +12,10 @@ from app.schemas.result_models import Expression
 
 logger = get_logger(__name__)
 
+
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
 
 # 표정별 관련 블렌드쉐이프 가중치
 EXPRESSION_BLENDSHAPES = {
@@ -60,6 +66,7 @@ class ExpressionScore:
     raw_scores: Dict[Expression, float]
 
 
+@trace("calculate_expression_score")
 def calculate_expression_score(
     blendshapes: Dict[str, float],
     expression: Expression
@@ -95,6 +102,7 @@ def calculate_expression_score(
     return total_score / total_weight
 
 
+@trace("detect_expression")
 def detect_expression(blendshapes: Dict[str, float]) -> ExpressionScore:
     """
     블렌드쉐이프에서 표정 감지
@@ -106,6 +114,11 @@ def detect_expression(blendshapes: Dict[str, float]) -> ExpressionScore:
         감지된 표정과 신뢰도
     """
     if not blendshapes:
+        try:
+            logger.info("Expression detected", data={"detected": str(Expression.NEUTRAL), "confidence": 0.0, "reason": "empty_blendshapes"})
+        except Exception:
+            pass
+
         return ExpressionScore(
             expression=Expression.NEUTRAL,
             score=0.0,
@@ -133,7 +146,12 @@ def detect_expression(blendshapes: Dict[str, float]) -> ExpressionScore:
         confidence = 1.0 - max(scores.values())
     
     scores[Expression.NEUTRAL] = 1.0 - max(scores.values())
-    
+
+    try:
+        logger.info("Expression detected final", data={"detected": str(detected), "confidence": confidence, "scores": {str(k): float(v) for k, v in scores.items()}})
+    except Exception:
+        pass
+
     return ExpressionScore(
         expression=detected,
         score=max_score if detected != Expression.NEUTRAL else scores[Expression.NEUTRAL],
@@ -142,6 +160,7 @@ def detect_expression(blendshapes: Dict[str, float]) -> ExpressionScore:
     )
 
 
+@trace("get_expression_label")
 def get_expression_label(expression: Expression) -> str:
     """표정 한글 라벨 반환"""
     labels = {
@@ -153,6 +172,7 @@ def get_expression_label(expression: Expression) -> str:
     return labels.get(expression, "알 수 없음")
 
 
+@trace("validate_expression")
 def validate_expression(expression: str) -> Optional[Expression]:
     """문자열을 Expression enum으로 변환"""
     try:

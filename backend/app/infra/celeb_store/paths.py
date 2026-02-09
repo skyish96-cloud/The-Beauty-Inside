@@ -2,6 +2,8 @@
 데이터 경로 규약 모듈
 하드코딩 금지 - 모든 경로는 여기서 관리
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from pathlib import Path
 from typing import Optional
 
@@ -77,6 +79,7 @@ class CelebPaths:
     
     # ================== 유효성 검사 ==================
     
+    @trace("validate")
     def validate(self) -> dict:
         """필수 파일/디렉토리 존재 여부 검사"""
         checks = {
@@ -89,6 +92,7 @@ class CelebPaths:
         }
         return checks
     
+    @trace("is_valid")
     def is_valid(self) -> bool:
         """모든 필수 파일이 존재하는지 확인"""
         return all(self.validate().values())

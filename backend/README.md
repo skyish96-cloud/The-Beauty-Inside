@@ -215,10 +215,10 @@ python -c "from app.core.model_loader import initialize_all_models; initialize_a
 
 ```bash
 # 개발 모드 (자동 재시작)
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 # 프로덕션 모드
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 ### 5. 접속 확인

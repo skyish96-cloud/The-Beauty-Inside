@@ -1,6 +1,6 @@
 export const CONFIG = {
   WS_PATH: "/ws/analyze",
-  WS_TIMEOUT_MS: 8000,
+  WS_TIMEOUT_MS: 50000,
   WS_RETRY_MAX: 2,
   WS_RETRY_BASE_DELAY_MS: 500,
 
@@ -16,5 +16,15 @@ export const CONFIG = {
 
 export function getWsUrl() {
   const proto = (location.protocol === "https:") ? "wss:" : "ws:";
-  return `${proto}//${location.host}${CONFIG.WS_PATH}`;
+  // 개발 환경 (Vite: 5173, Live Server: 5500, CRA: 3000)
+  const isDev = ["5173", "5500", "3000"].includes(location.port);
+  const host = isDev ? "localhost:8000" : location.host;
+  return `${proto}//${host}${CONFIG.WS_PATH}`;
+}
+
+export function getApiBaseUrl() {
+  const proto = (location.protocol === "https:") ? "https:" : "http:";
+  const isDev = ["5173", "5500", "3000"].includes(location.port);
+  const host = isDev ? "localhost:8000" : location.host;
+  return `${proto}//${host}`;
 }
