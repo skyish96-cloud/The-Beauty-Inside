@@ -2,6 +2,8 @@
 Top-K 선정 모듈
 gold/silver/bronze 선정 규칙
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
@@ -16,6 +18,10 @@ from app.domain.ranking.score_scale import scale_similarity_to_score
 
 logger = get_logger(__name__)
 
+
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
 
 # 순위별 등급
 RANK_NAMES = {
@@ -34,6 +40,7 @@ class TopKConfig:
     expression_match_bonus: float = 0.0  # 표정 일치 보너스
 
 
+@trace("select_top_k")
 def select_top_k(
     similarities: List[Tuple[str, float]],
     k: int = None,
@@ -52,6 +59,11 @@ def select_top_k(
     Returns:
         Top-K 유사도 결과 리스트
     """
+    try:
+        logger.info("TopK select input", data={"pairs_len": len(similarities), "k": k, "min_similarity": min_similarity, "expression": expression})
+    except Exception:
+        pass
+
     if k is None:
         k = settings.top_k
     if min_similarity is None:
@@ -84,6 +96,7 @@ def select_top_k(
     return results
 
 
+@trace("create_ranking_results")
 def create_ranking_results(
     similarity_results: List[SimilarityResult],
     expression: str
@@ -103,9 +116,10 @@ def create_ranking_results(
     for i, result in enumerate(similarity_results[:3]):
         rank = RANK_NAMES.get(i + 1, Rank.BRONZE)
         
-        # 이미지 URL 생성
-        image_path = celeb_paths.celeb_image_path(expression, result.celeb_id)
-        image_url = f"/celebs/images/{expression}/{result.celeb_id}.jpg"
+        # 이미지 URL 생성 (famous 폴더의 _01.jpg 사용)
+        base_id = result.celeb_id.replace("_original", "")
+        filename = f"{base_id}_01.jpg"
+        image_url = f"/api/celeb-image/{filename}"
         
         rankings.append(RankingResult(
             celeb_id=result.celeb_id,
@@ -113,7 +127,7 @@ def create_ranking_results(
             expression=expression,
             score=result.scaled_score,
             rank=rank,
-            image_url=image_url if image_path.exists() else None,
+            image_url=image_url,
         ))
     
     return rankings

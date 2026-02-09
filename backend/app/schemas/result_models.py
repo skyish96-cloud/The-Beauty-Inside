@@ -2,6 +2,15 @@
 결과 모델
 Top3/점수/품질플래그 모델
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
+from app.core.logger import get_logger
+
+logger = get_logger(__name__)
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional
@@ -110,8 +119,16 @@ class AnalysisResult:
     analysis_time_ms: int
     user_embedding: Optional[any] = None  # 저장하지 않음 (프라이버시)
     
+    @trace("AnalysisResult.to_response_dict")
     def to_response_dict(self) -> dict:
         """API 응답용 딕셔너리로 변환"""
+        try:
+            # top_matches 길이 등 기본 정보만 로그
+            if trace_enabled():
+                logger.info("AnalysisResult.to_response_dict", data={"session_id": self.session_id, "matches": len(self.top_matches)})
+        except Exception:
+            pass
+
         return {
             "session_id": self.session_id,
             "detected_expression": self.detected_expression.value,

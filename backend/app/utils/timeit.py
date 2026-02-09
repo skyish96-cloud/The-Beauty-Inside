@@ -1,6 +1,8 @@
 """
 Latency 측정 유틸리티
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 import time
 from contextlib import contextmanager
 from functools import wraps
@@ -10,6 +12,10 @@ from app.core.logger import get_logger
 
 logger = get_logger(__name__)
 
+
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
 
 class Timer:
     """실행 시간 측정 클래스"""

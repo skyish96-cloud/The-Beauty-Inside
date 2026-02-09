@@ -1,35 +1,97 @@
 <section class="page page-result">
+  <!-- 🎊 축하 컨페티 -->
+  <div class="confetti-container" aria-hidden="true"></div>
+
   <header class="header">
     <div class="brand">
       <div class="logo">Beauty Inside</div>
-      <div class="tag">오늘의 표정: <span data-expression>-</span></div>
+      <div class="tag">오늘의 표정: <span class="expression-tag" data-expression>분석중</span></div>
     </div>
 
     <div class="mosaic" aria-hidden="true">
-      <span class="tile t-sun"></span>
-      <span class="tile t-peach"></span>
-      <span class="tile t-sky"></span>
-      <span class="tile t-mint"></span>
-      <span class="tile t-violet"></span>
       <span class="tile t-coral"></span>
+      <span class="tile t-sun"></span>
+      <span class="tile t-mint"></span>
+      <span class="tile t-sky"></span>
+      <span class="tile t-violet"></span>
+      <span class="tile t-peach"></span>
     </div>
   </header>
 
-  <div class="grid">
-    <div class="panel">
-      <img data-snapshot class="snapshot" alt="snapshot" />
-      <div class="muted small">캡처 이미지(로컬 미리보기)</div>
+  <div class="grid result-grid">
+    <!-- 왼쪽: 사용자 사진 -->
+    <div class="panel photo-panel">
+      <div class="photo-frame">
+        <img data-snapshot class="snapshot" alt="Your photo" />
+        <div class="photo-label">
+          <span class="photo-icon">📸</span>
+          <span>오늘의 나</span>
+        </div>
+      </div>
+
+      <!-- 재미있는 한 줄 코멘트 -->
+      <div class="fun-comment" data-fun-comment>
+        ✨ 오늘도 빛나는 당신!
+      </div>
     </div>
 
-    <div class="panel">
-      <h2>Top 3</h2>
+    <!-- 오른쪽: 결과 -->
+    <div class="panel results-panel">
+      <div class="result-header">
+        <h2>🏆 나와 닮은 셀럽</h2>
+        <div class="match-badge" data-match-badge>
+          <span class="match-icon">💫</span>
+          <span class="match-text">최고 <span data-top-score>0</span>% 일치!</span>
+        </div>
+      </div>
+
+      <!-- 카드 템플릿: JS가 clone해서 data-results에 넣는다 -->
+      <template id="tpl-celeb-card">
+        <div class="celeb-card">
+          <div class="celeb-header">
+            <div class="celeb-image-wrap">
+              <img class="celeb-image" data-celeb-image alt="Celebrity" />
+              <div class="rank-badge" data-rank-badge>1</div>
+            </div>
+            <div class="celeb-info">
+              <div class="celeb-rank">
+                <span data-medal>🥇</span>
+                <span data-rank>1</span>위
+              </div>
+              <div class="celeb-name" data-celeb-name>연예인이름</div>
+              <div class="celeb-match-msg" data-match-msg>쌍둥이 수준!</div>
+            </div>
+          </div>
+          <div class="celeb-score">
+            <div class="bar">
+              <div class="bar-fill" data-bar style="width: 88%"></div>
+            </div>
+            <div class="score">
+              <span class="score-label">유사도</span>
+              <span class="score-value" data-score>88</span>
+              <span class="score-unit">점</span>
+            </div>
+          </div>
+        </div>
+      </template>
+
       <div class="results" data-results></div>
 
-      <div class="row">
-        <button class="btn" data-btn-retry>다시 하기</button>
-        <button class="btn primary" data-btn-download>다운로드</button>
+      <div class="action-row">
+        <button class="btn btn-icon" data-btn-retry>
+          <span>🔄</span> 다시 찍기
+        </button>
+        <button class="btn primary btn-icon btn-download" data-btn-download>
+          <span>💾</span> 저장하기
+        </button>
       </div>
-      <div class="privacy-badge">🔒 원본 사진 저장 안 함</div>
+
+      <div class="privacy-badge">원본 사진 저장 안 함</div>
     </div>
+  </div>
+
+  <!-- 하단 재미 요소 -->
+  <div class="result-footer">
+    <p class="footer-tip" data-footer-tip>💡 다른 표정으로도 시도해보세요!</p>
   </div>
 </section>

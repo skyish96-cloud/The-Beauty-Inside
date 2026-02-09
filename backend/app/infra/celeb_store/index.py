@@ -2,6 +2,8 @@
 표정별 후보 인덱스 모듈
 표정에 따라 연예인 후보 필터링
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 import json
 from functools import lru_cache
 from typing import Dict, List, Optional, Set
@@ -15,6 +17,10 @@ from app.infra.celeb_store.loader import celeb_loader
 
 logger = get_logger(__name__)
 
+
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
 
 class ExpressionIndex:
     """표정별 연예인 인덱스"""
@@ -41,6 +47,7 @@ class ExpressionIndex:
         self._loaded = False
         self._initialized = True
     
+    @trace("expression_index.load")
     def load(self) -> None:
         """인덱스 로드"""
         if self._loaded:
@@ -56,8 +63,13 @@ class ExpressionIndex:
             self._build_from_directory()
         
         self._loaded = True
+        try:
+            logger.info("Expression index stats", data={"expressions": list(self._expr_to_celebs.keys()), "counts": {k: len(v) for k, v in self._expr_to_celebs.items()}})
+        except Exception:
+            pass
         logger.info(f"Expression index loaded: {list(self._expr_to_celebs.keys())}")
     
+    @trace("expression_index._load_from_json")
     def _load_from_json(self, path) -> None:
         """JSON 파일에서 인덱스 로드"""
         with open(path, "r", encoding="utf-8") as f:
@@ -117,6 +129,7 @@ class ExpressionIndex:
         """특정 연예인이 가진 표정 목록"""
         return self._celeb_to_exprs.get(celeb_id, [])
     
+    @trace("expression_index.get_filtered_embeddings")
     def get_filtered_embeddings(
         self, 
         expression: str, 

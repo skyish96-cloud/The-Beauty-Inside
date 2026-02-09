@@ -2,6 +2,8 @@
 유사도 계산 모듈
 cosine/거리 계산 (NumPy/SciPy)
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from typing import List, Tuple, Optional
 
 import numpy as np
@@ -12,6 +14,10 @@ from app.utils.timeit import timeit
 
 logger = get_logger(__name__)
 
+
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
 
 def cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
     """
@@ -94,6 +100,7 @@ def batch_euclidean_distance(
     return distances
 
 
+@trace("compute_similarities")
 @timeit("compute_similarities")
 def compute_similarities(
     user_embedding: np.ndarray,
@@ -113,6 +120,20 @@ def compute_similarities(
     Returns:
         (celeb_id, similarity) 튜플 리스트 (유사도 내림차순 정렬)
     """
+    # 입력 검증/진단 로그
+    try:
+        logger.info("Similarity input validation", data={"user": brief(user_embedding), "candidates": brief(celeb_embeddings), "ids_len": len(celeb_ids)})
+    except Exception:
+        pass
+    if celeb_embeddings is None or len(celeb_ids) == 0:
+        raise ValueError("No candidate embeddings")
+    if getattr(celeb_embeddings, "ndim", 0) != 2:
+        raise ValueError("Candidate embeddings must be 2D")
+    if user_embedding is None:
+        raise ValueError("User embedding is None")
+    if user_embedding.shape[-1] != celeb_embeddings.shape[-1]:
+        raise ValueError(f"Embedding dim mismatch: user={user_embedding.shape} cand={celeb_embeddings.shape}")
+
     if method == "cosine":
         similarities = batch_cosine_similarity(user_embedding, celeb_embeddings)
     elif method == "euclidean":

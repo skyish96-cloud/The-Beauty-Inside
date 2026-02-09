@@ -1,6 +1,8 @@
 """
 pytest 설정 파일
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 import sys
 from pathlib import Path
 
@@ -12,6 +14,7 @@ import pytest
 
 
 @pytest.fixture
+@trace("sample_blendshapes")
 def sample_blendshapes():
     """샘플 블렌드쉐이프 데이터"""
     return {
@@ -25,6 +28,7 @@ def sample_blendshapes():
 
 
 @pytest.fixture
+@trace("sample_embedding")
 def sample_embedding():
     """샘플 임베딩 벡터"""
     import numpy as np
@@ -33,6 +37,7 @@ def sample_embedding():
 
 
 @pytest.fixture
+@trace("sample_image")
 def sample_image():
     """샘플 RGB 이미지"""
     import numpy as np

@@ -1,7 +1,13 @@
 """
 분석 파이프라인 오케스트레이션 모듈
 Step1~4 핵심 파이프라인
+
+[CRITICAL CORE COMPONENT]
+이 파일은 얼굴 분석의 전체 흐름을 제어하는 핵심 로직입니다.
+수정 시 전체 파이프라인에 영향을 미칠 수 있으므로, 팀 리뷰가 필수적입니다.
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from dataclasses import dataclass
 from typing import Callable, Optional, List
 
@@ -32,6 +38,10 @@ from app.utils.timeit import StepTimer
 
 logger = get_logger(__name__)
 
+
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
 
 # 진행 상태 콜백 타입
 ProgressCallback = Callable[[AnalyzeStep, int, str], None]
@@ -79,9 +89,8 @@ class AnalyzePipeline:
             self._celeb_loader = get_celeb_loader()
         if self._expression_index is None:
             self._expression_index = get_expression_index()
-    
-    async def analyze(
-        self,
+    @trace("pipeline_analyze")
+    async def analyze(self,
         image_data: str,
         session_id: Optional[str] = None,
         progress_callback: Optional[ProgressCallback] = None
@@ -113,6 +122,11 @@ class AnalyzePipeline:
             
             log.info("Step 1: Decoding image")
             image_bgr = decode_base64_image(image_data)
+            try:
+                from app.infra.images.decode import get_image_info
+                log.info("Decoded image info", data=get_image_info(image_bgr))
+            except Exception:
+                pass
             image_rgb = bgr_to_rgb(image_bgr)
             
             # ========== Step 2: 얼굴 감지 및 표정 분석 ==========
@@ -121,7 +135,11 @@ class AnalyzePipeline:
             
             log.info("Step 2: Face detection and expression analysis")
             face_results = self.landmarker.detect(image_rgb)
-            
+            try:
+                log.info("Face detection results", data={"num_faces": len(face_results), "bbox0": getattr(face_results[0], "face_bbox", None) if face_results else None})
+            except Exception:
+                pass
+
             # 얼굴 수 검증
             validate_face_count(len(face_results))
             
@@ -162,6 +180,10 @@ class AnalyzePipeline:
             
             # 임베딩 추출
             user_embedding = self.embedder.extract(face_image, enforce_detection=False)
+            try:
+                log.info("User embedding extracted", data={"embedding": brief(user_embedding)})
+            except Exception:
+                pass
             
             # ========== Step 4: 유사도 계산 및 Top-K 선정 ==========
             self._notify_progress(progress_callback, AnalyzeStep.MATCHING, 80, "닮은 연예인 찾는 중...")
@@ -171,6 +193,10 @@ class AnalyzePipeline:
             
             # 연예인 임베딩 가져오기
             celeb_embeddings, celeb_ids = self._celeb_loader.get_all_embeddings()
+            try:
+                log.info("Candidate embeddings info", data={"embeddings": brief(celeb_embeddings), "ids_len": len(celeb_ids)})
+            except Exception:
+                pass
             
             # 표정별 필터링
             if self.config.filter_by_expression and self._expression_index.has_expression(expression.value):
@@ -244,6 +270,7 @@ def get_pipeline() -> AnalyzePipeline:
     return _pipeline
 
 
+@trace("run_analysis")
 async def run_analysis(
     image_data: str,
     session_id: Optional[str] = None,

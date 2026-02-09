@@ -28,14 +28,15 @@ class Settings(BaseSettings):
     # 서버 설정
     host: str = "0.0.0.0"
     port: int = 8000
+    api_base_url: str = "http://localhost:8000"  
     
     # WebSocket 설정
     ws_timeout_seconds: int = 30
     ws_max_message_size: int = 10 * 1024 * 1024  # 10MB
     
     # Firebase 설정
-    firebase_credentials_path: Optional[str] = None
-    firebase_project_id: Optional[str] = None
+    firebase_credentials_path: Optional[str] = Field(default=None)
+    firebase_project_id: Optional[str] = Field(default="the-beauty-inside")
     
     # 데이터 경로 설정
     data_dir: str = Field(default="data")
@@ -63,6 +64,24 @@ class Settings(BaseSettings):
     # 랭킹 설정
     top_k: int = 3  # Top K 결과 수
     similarity_threshold: float = 0.4  # 최소 유사도 임계값
+
+    # CORS 설정
+    cors_origins: str = "http://localhost:8000,http://localhost:5173,http://localhost:5500,http://127.0.0.1:5173"
+    cors_allow_credentials: bool = True
+    cors_methods: str = "*"
+    cors_allow_headers: str = "*"
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        if not self.cors_origins or self.cors_origins == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.cors_origins.split(",")]
+
+    @property
+    def cors_methods_list(self) -> list[str]:
+        if not self.cors_methods or self.cors_methods == "*":
+            return ["*"]
+        return [method.strip() for method in self.cors_methods.split(",")]
     
     # 로깅 설정
     log_level: str = "INFO"

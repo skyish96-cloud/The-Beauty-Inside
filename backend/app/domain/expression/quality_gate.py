@@ -2,6 +2,8 @@
 품질 판단 모듈
 "표정 충분?"/흐림/어두움 등 품질 판정
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
@@ -16,6 +18,11 @@ from app.schemas.result_models import QualityResult
 logger = get_logger(__name__)
 
 
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
+
+@trace("blur_score")
 def calculate_blur_score(image: np.ndarray) -> float:
     """
     이미지 흐림 정도 계산 (Laplacian variance)
@@ -37,6 +44,7 @@ def calculate_blur_score(image: np.ndarray) -> float:
     return float(variance)
 
 
+@trace("brightness")
 def calculate_brightness(image: np.ndarray) -> float:
     """
     이미지 평균 밝기 계산
@@ -115,6 +123,7 @@ def check_face_centered(
     )
 
 
+@trace("check_image_quality")
 def check_image_quality(
     image: np.ndarray,
     face_bbox: Optional[Tuple[int, int, int, int]] = None
@@ -148,6 +157,11 @@ def check_image_quality(
         result.face_size_ok = check_face_size(face_bbox, img_shape)
         result.face_centered = check_face_centered(face_bbox, img_shape)
     
+    try:
+        logger.info("Quality computed", data={"blur": result.blur_score, "brightness": result.brightness_score, "flags": {"is_blurry": result.is_blurry, "is_dark": result.is_dark, "is_bright": result.is_bright, "face_size_ok": result.face_size_ok, "face_centered": result.face_centered}})
+    except Exception:
+        pass
+
     # 전체 유효성
     result.is_valid = (
         not result.is_blurry and
@@ -160,6 +174,7 @@ def check_image_quality(
     return result
 
 
+@trace("validate_face_count")
 def validate_face_count(num_faces: int) -> None:
     """
     얼굴 수 검증
@@ -183,6 +198,7 @@ def validate_face_count(num_faces: int) -> None:
         )
 
 
+@trace("validate_quality")
 def validate_quality(quality: QualityResult) -> None:
     """
     품질 검증 (에러 발생)

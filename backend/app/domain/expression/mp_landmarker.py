@@ -2,6 +2,8 @@
 MediaPipe 초기화/추론 래퍼 모듈
 얼굴 랜드마크 및 블렌드쉐이프 추출
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from functools import lru_cache
 from typing import Optional, List, Dict, Any
 
@@ -15,11 +17,16 @@ from app.core.model_loader import get_mediapipe_model_path
 logger = get_logger(__name__)
 
 
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
+
 # MediaPipe Face Landmarker 지연 로딩
 _landmarker = None
 _landmarker_initialized = False
 
 
+@trace("mediapipe._get_landmarker")
 def _get_landmarker():
     """MediaPipe FaceLandmarker 인스턴스 반환 (지연 로딩)"""
     global _landmarker, _landmarker_initialized
@@ -89,6 +96,7 @@ class MediaPipeLandmarker:
         if self._landmarker is None:
             self._landmarker = _get_landmarker()
     
+    @trace("mediapipe.detect")
     def detect(self, image: np.ndarray) -> List[FaceLandmarkerResult]:
         """
         이미지에서 얼굴 랜드마크 감지
@@ -103,7 +111,11 @@ class MediaPipeLandmarker:
             FaceDetectionError: 얼굴 감지 실패
         """
         self._ensure_initialized()
-        
+        try:
+            logger.info("MediaPipe detect input", data={"image": brief(image)})
+        except Exception:
+            pass
+
         if self._landmarker is None:
             # MediaPipe 사용 불가 시 대체 로직
             return self._detect_fallback(image)
@@ -116,7 +128,12 @@ class MediaPipeLandmarker:
             
             # 감지 수행
             detection_result = self._landmarker.detect(mp_image)
-            
+            try:
+                n_faces = len(detection_result.face_landmarks) if detection_result.face_landmarks else 0
+                logger.info("MediaPipe raw result", data={"num_faces": n_faces})
+            except Exception:
+                pass
+
             if not detection_result.face_landmarks:
                 return []
             

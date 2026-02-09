@@ -1,7 +1,13 @@
 """
-WebSocket 엔드포인트 모듈
-/ws/analyze WebSocket 엔드포인트
+/ws/analyze WebSocket
+
+Contract v1 (Step0 fixed):
+- request:  type="analyze"
+- response: type="result" | type="error"
+- Step0에서는 progress 전송 금지
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 import asyncio
 import json
 from datetime import datetime
@@ -10,255 +16,198 @@ from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.core.config import settings
-from app.core.errors import BeautyInsideError, ErrorCode, create_error_response
+from app.core.errors import BeautyInsideError, ErrorCode
 from app.core.logger import get_logger
 from app.domain.pipeline.analyze_pipeline import run_analysis
-from app.infra.firestore.repo import analysis_repo
-from app.schemas.firestore_models import SessionDocument
+from app.domain.ports.result_repository import IResultRepository
+from app.infra.repositories.null_repository import NullRepository
 from app.schemas.ws_messages import (
-    AnalyzeProgress,
-    AnalyzeResult,
-    AnalyzeStep,
-    CelebMatch,
+    AnalyzeRequest,
     ErrorResponse,
-    MessageType,
     PongMessage,
-    QualityFlags,
+    ResultItem,
+    ResultMessage,
     parse_client_message,
 )
 from app.utils.ids import generate_session_id
 
 logger = get_logger(__name__)
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
+
 router = APIRouter()
 
-
-class ConnectionManager:
-    """WebSocket 연결 관리자"""
-    
-    def __init__(self):
-        self.active_connections: dict[str, WebSocket] = {}
-    
-    async def connect(self, websocket: WebSocket, session_id: str):
-        """연결 수락"""
-        await websocket.accept()
-        self.active_connections[session_id] = websocket
-        logger.info(f"WebSocket connected: {session_id}")
-    
-    def disconnect(self, session_id: str):
-        """연결 해제"""
-        if session_id in self.active_connections:
-            del self.active_connections[session_id]
-            logger.info(f"WebSocket disconnected: {session_id}")
-    
-    async def send_json(self, session_id: str, data: dict):
-        """JSON 메시지 전송"""
-        if session_id in self.active_connections:
-            websocket = self.active_connections[session_id]
-            await websocket.send_json(data)
-    
-    async def send_progress(
-        self,
-        session_id: str,
-        step: AnalyzeStep,
-        percent: int,
-        message: str
-    ):
-        """진행 상태 전송"""
-        progress = AnalyzeProgress(
-            session_id=session_id,
-            step=step,
-            progress_percent=percent,
-            message=message
-        )
-        await self.send_json(session_id, progress.model_dump())
-    
-    async def send_result(self, session_id: str, result: AnalyzeResult):
-        """분석 결과 전송"""
-        await self.send_json(session_id, result.model_dump(mode="json"))
-    
-    async def send_error(
-        self,
-        session_id: str,
-        error_code: str,
-        message: str,
-        details: Optional[dict] = None
-    ):
-        """에러 전송"""
-        error = ErrorResponse(
-            session_id=session_id,
-            error_code=error_code,
-            message=message,
-            details=details
-        )
-        await self.send_json(session_id, error.model_dump())
+# Repository 패턴: 현재는 NullRepository (저장 안 함)
+# 나중에 PostgresRepository, FileLogRepository 등으로 교체 가능
+result_repo: IResultRepository = NullRepository()
 
 
-manager = ConnectionManager()
+def _guess_session_seq(data: Optional[dict]) -> tuple[str, int]:
+    if not isinstance(data, dict):
+        return generate_session_id(), 0
+    sid = data.get("session_id") or generate_session_id()
+    try:
+        seq = int(data.get("seq") or 0)
+    except Exception:
+        seq = 0
+    return sid, seq
+
+
+def _map_error_code_to_front(code: ErrorCode) -> str:
+    mapping = {
+        ErrorCode.NO_FACE_DETECTED: "FACE_NOT_FOUND",
+        ErrorCode.MULTIPLE_FACES_DETECTED: "MULTIPLE_FACES",
+        ErrorCode.IMAGE_TOO_DARK: "TOO_DARK",
+        ErrorCode.IMAGE_TOO_BLURRY: "TOO_BLURRY",
+        ErrorCode.EXPRESSION_NOT_DETECTED: "EXPRESSION_WEAK",
+        ErrorCode.EXPRESSION_LOW_CONFIDENCE: "EXPRESSION_WEAK",
+        ErrorCode.TIMEOUT_ERROR: "TIMEOUT",
+        ErrorCode.IMAGE_INVALID_FORMAT: "DECODE_FAIL",
+        ErrorCode.IMAGE_TOO_LARGE: "DECODE_FAIL",
+        ErrorCode.WS_MESSAGE_INVALID: "DECODE_FAIL",
+        ErrorCode.WS_CONNECTION_ERROR: "TIMEOUT",
+        ErrorCode.INTERNAL_ERROR: "DECODE_FAIL",
+        ErrorCode.MODEL_LOAD_ERROR: "DECODE_FAIL",
+        ErrorCode.DATABASE_ERROR: "DECODE_FAIL",
+    }
+    return mapping.get(code, "DECODE_FAIL")
 
 
 @router.websocket("/ws/analyze")
+@trace("ws_analyze")
 async def websocket_analyze(websocket: WebSocket):
-    """
-    얼굴 분석 WebSocket 엔드포인트
-    
-    클라이언트 → 서버:
-    - analyze_request: 이미지 분석 요청
-    - ping: 연결 확인
-    
-    서버 → 클라이언트:
-    - analyze_progress: 분석 진행 상태
-    - analyze_result: 분석 결과
-    - error: 에러
-    - pong: 핑 응답
-    """
-    session_id = generate_session_id()
-    log = logger.with_session(session_id)
-    
-    await manager.connect(websocket, session_id)
-    
-    # 세션 저장
-    await analysis_repo.save_session(SessionDocument(
-        session_id=session_id,
-        created_at=datetime.utcnow(),
-        status="active"
-    ))
-    
+    await websocket.accept()
     try:
-        while True:
-            # 메시지 수신 (타임아웃 적용)
+        client = getattr(websocket, "client", None)
+        logger.info("WS accepted", data={"client": str(client)})
+    except Exception:
+        pass
+
+    data: Optional[dict] = None
+    sid, seq = generate_session_id(), 0
+    log = logger.with_session(sid)
+
+    try:
+        raw = await asyncio.wait_for(websocket.receive_text(), timeout=settings.ws_timeout_seconds)
+        try:
+            logger.info("WS received text", data={"chars": len(raw)})
+        except Exception:
+            pass
+
+        try:
+            data = json.loads(raw)
             try:
-                raw_data = await asyncio.wait_for(
-                    websocket.receive_text(),
-                    timeout=settings.ws_timeout_seconds
-                )
-            except asyncio.TimeoutError:
-                log.warning("WebSocket timeout")
-                await manager.send_error(
-                    session_id,
-                    ErrorCode.TIMEOUT_ERROR.value,
-                    "연결 시간이 초과되었습니다"
-                )
-                break
-            
-            # JSON 파싱
+                logger.info("WS parsed json", data={"keys": list(data.keys()) if isinstance(data, dict) else None})
+            except Exception:
+                pass
+        except json.JSONDecodeError:
+            sid, seq = _guess_session_seq(None)
+            await websocket.send_json(ErrorResponse(
+                session_id=sid, seq=seq, latency_ms=0,
+                error_code="DECODE_FAIL", message="invalid json", details=None
+            ).model_dump())
+            await websocket.close()
+            return
+
+        sid, seq = _guess_session_seq(data)
+        log = logger.with_session(sid)
+
+        try:
+            msg = parse_client_message(data)
             try:
-                data = json.loads(raw_data)
-            except json.JSONDecodeError:
-                await manager.send_error(
-                    session_id,
-                    ErrorCode.WS_MESSAGE_INVALID.value,
-                    "잘못된 JSON 형식입니다"
-                )
-                continue
-            
-            # 메시지 처리
-            msg_type = data.get("type")
-            
-            if msg_type == MessageType.PING.value:
-                # 핑 응답
-                pong = PongMessage()
-                await manager.send_json(session_id, pong.model_dump(mode="json"))
-                
-            elif msg_type == MessageType.ANALYZE_REQUEST.value:
-                # 분석 요청 처리
-                await handle_analyze_request(session_id, data, log)
-                
-            else:
-                await manager.send_error(
-                    session_id,
-                    ErrorCode.WS_MESSAGE_INVALID.value,
-                    f"알 수 없는 메시지 타입: {msg_type}"
-                )
-    
+                if isinstance(msg, AnalyzeRequest):
+                    logger.info("WS message validated", data={"type": msg.type, "session_id": msg.session_id, "seq": msg.seq, "image_b64_len": len(msg.image_b64)})
+                else:
+                    logger.info("WS message validated", data={"type": getattr(msg, "type", None)})
+            except Exception:
+                pass
+        except Exception:
+            await websocket.send_json(ErrorResponse(
+                session_id=sid, seq=seq, latency_ms=0,
+                error_code="DECODE_FAIL", message="invalid message schema", details=None
+            ).model_dump())
+            await websocket.close()
+            return
+
+        if getattr(msg, "type", None) == "ping":
+            await websocket.send_json(PongMessage().model_dump(mode="json"))
+            await websocket.close()
+            return
+
+        assert isinstance(msg, AnalyzeRequest)
+
+        # Step0: progress_callback=None (progress 메시지 금지)
+        logger.info("WS starting analysis", data={"session_id": msg.session_id, "seq": msg.seq, "image_b64": brief(msg.image_b64)})
+        result = await run_analysis(
+            image_data=msg.image_b64,
+            session_id=msg.session_id,
+            progress_callback=None,
+        )
+
+        # Repository Pattern: 현재 NullRepository (저장 안 함)
+        await result_repo.save(result)
+
+        items = []
+        for i, m in enumerate(result.top_matches[:3]):
+            score_100 = int(round(float(m.score)))
+            score_100 = max(0, min(100, score_100))
+            # 연예인 이미지 URL 생성 (완전한 URL: http://localhost:8000/api/celeb-image/...)
+            clean_name = m.name.replace("_original", "")
+            celeb_image_url = f"{settings.api_base_url}/api/celeb-image/{clean_name}_01.jpg"
+            items.append(ResultItem(
+                rank=i + 1,
+                celeb_id=m.celeb_id,
+                celeb_name=m.name,
+                similarity=round(score_100 / 100.0, 2),
+                similarity_100=score_100,
+                celeb_image_url=celeb_image_url,
+            ))
+
+        resp = ResultMessage(
+            session_id=msg.session_id,
+            seq=msg.seq,
+            latency_ms=int(result.analysis_time_ms),
+            expression_label=result.detected_expression.value,
+            similarity_method="cosine",
+            quality_flags=list(getattr(result.quality, "issues", []) or []),
+            results=items,
+        )
+
+        await websocket.send_json(resp.model_dump())
+        await websocket.close()
+        log.info("WS analyze done", latency_ms=int(result.analysis_time_ms))
+
+    except asyncio.TimeoutError:
+        sid, seq = _guess_session_seq(data)
+        await websocket.send_json(ErrorResponse(
+            session_id=sid, seq=seq, latency_ms=0,
+            error_code="TIMEOUT", message="ws timeout", details=None
+        ).model_dump())
+        await websocket.close()
+
     except WebSocketDisconnect:
         log.info("Client disconnected")
-    except Exception as e:
-        log.exception(f"WebSocket error: {e}")
-        try:
-            await manager.send_error(
-                session_id,
-                ErrorCode.INTERNAL_ERROR.value,
-                "서버 오류가 발생했습니다"
-            )
-        except:
-            pass
-    finally:
-        manager.disconnect(session_id)
 
-
-async def handle_analyze_request(session_id: str, data: dict, log):
-    """분석 요청 처리"""
-    
-    image_data = data.get("image_data")
-    if not image_data:
-        await manager.send_error(
-            session_id,
-            ErrorCode.WS_MESSAGE_INVALID.value,
-            "이미지 데이터가 없습니다"
-        )
-        return
-    
-    # 진행 상태 콜백
-    async def progress_callback(step: AnalyzeStep, percent: int, message: str):
-        await manager.send_progress(session_id, step, percent, message)
-    
-    # 동기 콜백을 비동기로 래핑
-    def sync_progress_callback(step: AnalyzeStep, percent: int, message: str):
-        asyncio.create_task(progress_callback(step, percent, message))
-    
-    try:
-        # 분석 실행
-        result = await run_analysis(
-            image_data=image_data,
-            session_id=session_id,
-            progress_callback=sync_progress_callback
-        )
-        
-        # 결과 저장
-        await analysis_repo.save_full_result(result)
-        
-        # 결과 전송
-        response = AnalyzeResult(
-            session_id=session_id,
-            detected_expression=result.detected_expression.value,
-            expression_confidence=result.expression_confidence,
-            matches=[
-                CelebMatch(
-                    celeb_id=m.celeb_id,
-                    name=m.name,
-                    similarity_score=m.score,
-                    rank=i + 1,
-                    expression=m.expression,
-                    image_url=m.image_url
-                )
-                for i, m in enumerate(result.top_matches)
-            ],
-            quality_flags=QualityFlags(
-                is_blurry=result.quality.is_blurry,
-                is_dark=result.quality.is_dark,
-                is_bright=result.quality.is_bright,
-                face_size_ok=result.quality.face_size_ok,
-                face_centered=result.quality.face_centered
-            ),
-            analysis_time_ms=result.analysis_time_ms
-        )
-        
-        await manager.send_result(session_id, response)
-        log.info(f"Analysis completed: {len(result.top_matches)} matches")
-        
     except BeautyInsideError as e:
+        sid, seq = _guess_session_seq(data)
+        await websocket.send_json(ErrorResponse(
+            session_id=sid, seq=seq, latency_ms=0,
+            error_code=_map_error_code_to_front(e.code),
+            message="analysis error",
+            details=None
+        ).model_dump())
+        await websocket.close()
         log.warning(f"Analysis error: {e.code} - {e.message}")
-        await manager.send_error(
-            session_id,
-            e.code.value,
-            e.message,
-            e.details
-        )
-        
+
     except Exception as e:
-        log.exception(f"Unexpected error: {e}")
-        await manager.send_error(
-            session_id,
-            ErrorCode.INTERNAL_ERROR.value,
-            "분석 중 오류가 발생했습니다"
-        )
+        sid, seq = _guess_session_seq(data)
+        try:
+            await websocket.send_json(ErrorResponse(
+                session_id=sid, seq=seq, latency_ms=0,
+                error_code="DECODE_FAIL", message="server error", details=None
+            ).model_dump())
+            await websocket.close()
+        except Exception:
+            pass
+        log.exception(f"Unhandled WS error: {e}")

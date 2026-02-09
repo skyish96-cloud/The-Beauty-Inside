@@ -2,6 +2,8 @@
 AI 모델 자동 다운로드 및 초기화 모듈
 MediaPipe Face Landmarker, DeepFace 모델 관리
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 import os
 import urllib.request
 from pathlib import Path
@@ -10,6 +12,10 @@ from typing import Optional
 from app.core.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
 
 # 모델 파일 경로
 MODELS_DIR = Path(__file__).parent.parent.parent / "models"
@@ -22,12 +28,14 @@ MEDIAPIPE_MODEL_URL = (
 )
 
 
+@trace("ensure_models_directory")
 def ensure_models_directory():
     """모델 디렉토리 생성"""
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     logger.debug(f"Models directory: {MODELS_DIR}")
 
 
+@trace("download_file")
 def download_file(url: str, destination: Path, description: str = "file") -> bool:
     """
     파일 다운로드
@@ -62,6 +70,7 @@ def download_file(url: str, destination: Path, description: str = "file") -> boo
         return False
 
 
+@trace("ensure_mediapipe_model")
 def ensure_mediapipe_model() -> Optional[str]:
     """
     MediaPipe Face Landmarker 모델 확보
@@ -88,6 +97,7 @@ def ensure_mediapipe_model() -> Optional[str]:
     return None
 
 
+@trace("ensure_deepface_model")
 def ensure_deepface_model(model_name: str = "Facenet512") -> bool:
     """
     DeepFace 모델 확보 (첫 실행 시 자동 다운로드)
@@ -133,6 +143,7 @@ def ensure_deepface_model(model_name: str = "Facenet512") -> bool:
         return False
 
 
+@trace("initialize_all_models")
 def initialize_all_models() -> dict:
     """
     모든 AI 모델 초기화

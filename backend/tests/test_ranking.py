@@ -1,6 +1,8 @@
 """
 유사도/TopK 테스트
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 import numpy as np
 import pytest
 

@@ -2,6 +2,8 @@
 점수 스케일링 모듈
 유사도(0~1) → 표시점수(0~100) 변환
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from typing import Callable, Optional
 
 import numpy as np
@@ -10,6 +12,10 @@ from app.core.logger import get_logger
 
 logger = get_logger(__name__)
 
+
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
 
 # 스케일링 함수 타입
 ScaleFunction = Callable[[float], float]
@@ -225,6 +231,7 @@ class ScoreScaler:
 default_scaler = ScoreScaler(method="power", power=0.7)
 
 
+@trace("scale_similarity_to_score")
 def scale_similarity_to_score(similarity: float) -> float:
     """기본 스케일러를 사용한 점수 변환"""
     return default_scaler.scale(similarity)

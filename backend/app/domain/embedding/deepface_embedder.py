@@ -1,6 +1,8 @@
 """
 DeepFace 임베딩 추출 래퍼 모듈
 """
+from app.core.debug_tools import trace, trace_enabled, brief
+
 from functools import lru_cache
 from typing import Optional, List, Dict, Any
 
@@ -13,11 +15,16 @@ from app.utils.timeit import timeit
 
 logger = get_logger(__name__)
 
+
+if trace_enabled():
+    logger.info("[TRACE] module loaded", data={"module": __name__})
+
 # DeepFace 지연 로딩
 _deepface = None
 _model_initialized = False
 
 
+@trace("deepface._get_deepface")
 def _get_deepface():
     """DeepFace 모듈 지연 로딩"""
     global _deepface, _model_initialized
@@ -69,6 +76,7 @@ class DeepFaceEmbedder:
                 "DeepFace 모델을 로드할 수 없습니다"
             )
     
+    @trace("deepface.extract")
     @timeit("extract_embedding")
     def extract(
         self,
@@ -92,7 +100,11 @@ class DeepFaceEmbedder:
             SystemError: 모델 오류
         """
         self._ensure_initialized()
-        
+        try:
+            logger.info("DeepFace extract input", data={"model_name": self.model_name, "detector_backend": self.detector_backend, "image": brief(image)})
+        except Exception:
+            pass
+
         try:
             # DeepFace.represent()는 리스트 반환
             results = self._deepface.represent(
@@ -102,7 +114,11 @@ class DeepFaceEmbedder:
                 enforce_detection=enforce_detection,
                 align=align,
             )
-            
+            try:
+                logger.info("DeepFace represent result", data={"num_faces": len(results) if results else 0})
+            except Exception:
+                pass
+
             if not results:
                 raise FaceDetectionError(
                     ErrorCode.NO_FACE_DETECTED,
@@ -148,7 +164,11 @@ class DeepFaceEmbedder:
             얼굴별 임베딩과 메타데이터 리스트
         """
         self._ensure_initialized()
-        
+        try:
+            logger.info("DeepFace extract input", data={"model_name": self.model_name, "detector_backend": self.detector_backend, "image": brief(image)})
+        except Exception:
+            pass
+
         try:
             results = self._deepface.represent(
                 img_path=image,
